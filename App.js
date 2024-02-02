@@ -1,10 +1,44 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
+import Onboarding from './app/components/Onboarding';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useEffect, useState } from 'react';
+import HomeScreen from './app/screens/HomeScreen';
+
+const Loading = () => {
+  return (
+    <View>
+      <ActivityIndicator size="large" />
+    </View>
+  )
+}
 
 export default function App() {
+  const [loading, setLoading] = useState(true);
+  const [viewdOnboarding, setViewOnboarding] = useState(false);
+
+  const checkOnboarding = async () => {
+    try {
+      const value = await AsyncStorage.getItem('@viewedOnboarding')
+      if (value != null) {
+        setViewOnboarding(true)
+      }
+    } catch (error) {
+      console.log('Error @checkOnboarding', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    checkOnboarding()
+  }, [])
+
   return (
     <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
+      {
+        loading ? <Loading /> : viewdOnboarding ? <HomeScreen /> : <Onboarding />
+      }
       <StatusBar style="auto" />
     </View>
   );
